@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.tasks.routes import router as tasks_routes
+from tasks.routes import router as tasks_routes
 import uvicorn
 
 
