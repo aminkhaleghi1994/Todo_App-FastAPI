@@ -1,13 +1,18 @@
 from fastapi import APIRouter, Path, Depends, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 from users.schemas import *
-from users.models import UserModel
+from users.models import UserModel, TokenModel
 from sqlalchemy.orm import Session
 from core.database import get_db
 from typing import List
+import secrets
 
 
 router = APIRouter(tags=["users"], prefix="/users")
+
+
+def generate_token(length = 32):
+    return secrets.token_hex(length)
 
 
 @router.post("/login")
@@ -17,7 +22,13 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User does not exist")
     if not user_object.verify_password(request.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is invalid")
-    return JSONResponse(status_code=status.HTTP_200_OK, content="user object successfully login")
+    token_object = TokenModel(user_id=user_object.id, token=generate_token())
+    db.add(token_object)
+    db.commit()
+    db.refresh(token_object)
+    return JSONResponse(status_code=status.HTTP_200_OK,
+                        content={"detail": "user object successfully login",
+                                 "token": token_object.token})
 
 
 @router.post("/register")

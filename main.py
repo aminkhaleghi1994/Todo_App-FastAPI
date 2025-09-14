@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
 import uvicorn
-from auth.basic_auth import get_current_username
-from users.models import UserModel
+from auth.basic_auth import get_current_username as basic_auth
+from auth.bearer_auth import get_current_username as bearer_auth
+from users.models import UserModel, TokenModel
 from fastapi.security import APIKeyHeader, APIKeyQuery
 
 
@@ -35,26 +36,14 @@ app.include_router(tasks_routes)
 app.include_router(users_routes)
 
 
-header_scheme = APIKeyHeader(name="x-key")
-@app.get("/header_scheme/")
-async def read_items(api_key: str = Depends(header_scheme)):
-    print(api_key)
-    return {"api_key": api_key}
-
-
-query_scheme = APIKeyQuery(name="api_key")
-@app.get("/query_scheme/")
-async def read_items(api_key: str = Depends(query_scheme)):
-    return {"api_key": api_key}
-
-
 @app.get("/public")
 async def public_rout():
     return {"detail": "This Is A Public Route"}
 
 
 @app.get("/private")
-async def private_rout(user: UserModel = Depends(get_current_username)):
+async def private_rout(user: UserModel = Depends(bearer_auth)):
+    print(user)
     return {"detail": "This Is A Private Route"}
 
 
