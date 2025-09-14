@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
+from users.routes import router as users_routes
 import uvicorn
+from auth.basic_auth import get_current_username
+from users.models import UserModel
 
 
 @asynccontextmanager
@@ -26,7 +29,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(tasks_routes, prefix="/api/v1")
+app.include_router(tasks_routes)
+app.include_router(users_routes)
+
+@app.get("/public")
+async def public_rout():
+    return {"detail": "This Is A Public Route"}
+
+
+@app.get("/private")
+async def private_rout(user: UserModel = Depends(get_current_username)):
+    return {"detail": "This Is A Private Route"}
 
 
 if __name__ == "__main__":
