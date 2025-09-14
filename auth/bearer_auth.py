@@ -10,9 +10,6 @@ security = HTTPBearer(scheme_name="Token")
 
 def get_current_username(credentials: HTTPAuthorizationCredentials = Depends(security),
                          db: Session = Depends(get_db)):
-    print('---------')
-    print(credentials)
-    print('---------')
     token_object = db.query(TokenModel).filter_by(token=credentials.credentials).first()
     if not token_object:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

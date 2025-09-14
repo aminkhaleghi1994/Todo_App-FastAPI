@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from typing import List
 import secrets
+from auth.jwt_auth import generate_access_token, generate_refresh_token, decode_refresh_token
 
 
 router = APIRouter(tags=["users"], prefix="/users")
@@ -22,13 +23,12 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User does not exist")
     if not user_object.verify_password(request.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is invalid")
-    token_object = TokenModel(user_id=user_object.id, token=generate_token())
-    db.add(token_object)
-    db.commit()
-    db.refresh(token_object)
+    access_token = generate_access_token(user_object.id)
+    refresh_token = generate_refresh_token(user_object.id)
     return JSONResponse(status_code=status.HTTP_200_OK,
                         content={"detail": "user object successfully login",
-                                 "token": token_object.token})
+                                 "access_token": access_token,
+                                 "refresh_token": refresh_token})
 
 
 @router.post("/register")
@@ -41,3 +41,10 @@ async def user_register(request: UserRegisterSchema, db: Session = Depends(get_d
     db.commit()
     db.refresh(user_object)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content="user object successfully registered")
+
+
+@router.post("/refresh-token")
+async def user_refresh_register(request: UserRefreshTokenSchema):
+    user_id = decode_refresh_token(request.token)
+    access_token = generate_access_token(user_id)
+    return JSONResponse(content={"access_token": access_token})
