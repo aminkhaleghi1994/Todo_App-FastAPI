@@ -27,6 +27,7 @@ app = FastAPI(
 )
 
 app.include_router(tasks_routes, prefix="/api/v1")
+app
 
 
 if __name__ == "__main__":
