@@ -12,10 +12,17 @@ router = APIRouter(tags=["tasks"], prefix="/todos")
 
 @router.get("/tasks", response_model=List[TaskResponseSchema])
 async def retrieve_tasks(
-        completed: bool = Query(None, description="filter tasks based on being completed or not"),
-        limit: bool = Query(10, gt=0, le=50, description="limiting the number of items to retrieve"),
-        offset: bool = Query(0, ge=0, description="use for paginating based on passed items"),
-        db: Session = Depends(get_db)):
+    completed: bool = Query(
+        None, description="filter tasks based on being completed or not"
+    ),
+    limit: bool = Query(
+        10, gt=0, le=50, description="limiting the number of items to retrieve"
+    ),
+    offset: bool = Query(
+        0, ge=0, description="use for paginating based on passed items"
+    ),
+    db: Session = Depends(get_db),
+):
     query = db.query(TaskModel)
     if completed is not None:
         query = query.filter_by(is_completed=completed)
@@ -24,10 +31,14 @@ async def retrieve_tasks(
 
 
 @router.get("/tasks/{task_id}", response_model=TaskResponseSchema)
-async def retrieve_tasks_detail(task_id: int = Path(..., gt=0), db: Session = Depends(get_db)):
+async def retrieve_tasks_detail(
+    task_id: int = Path(..., gt=0), db: Session = Depends(get_db)
+):
     task_object = db.query(TaskModel).filter_by(id=task_id).first()
     if not task_object:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
     return task_object
 
 
@@ -41,10 +52,16 @@ async def create_task(request: TaskCreateSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/tasks/{task_id}", response_model=TaskResponseSchema)
-async def update_task(request: TaskUpdateSchema, task_id: int = Path(..., gt=0), db: Session = Depends(get_db)):
+async def update_task(
+    request: TaskUpdateSchema,
+    task_id: int = Path(..., gt=0),
+    db: Session = Depends(get_db),
+):
     task_object = db.query(TaskModel).filter_by(id=task_id).first()
     if not task_object:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
 
     for field, value in request.model_dump(exclude_unset=True).items():
         setattr(task_object, field, value)
@@ -58,7 +75,9 @@ async def update_task(request: TaskUpdateSchema, task_id: int = Path(..., gt=0),
 async def delete_task(task_id: int = Path(..., gt=0), db: Session = Depends(get_db)):
     task_object = db.query(TaskModel).filter_by(id=task_id).first()
     if not task_object:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+        )
 
     db.delete(task_object)
     db.commit()

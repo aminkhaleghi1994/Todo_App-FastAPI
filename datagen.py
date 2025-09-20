@@ -17,18 +17,18 @@ def seed_users(db: SessionLocal):
     print(f"User Created Successfully: {user.username}")
     return user
 
-def seed_tasks(db: SessionLocal,
-               user: UserModel,
-               count=10):
+
+def seed_tasks(db: SessionLocal, user: UserModel, count=10):
     task_list = []
     for _ in range(count):
-        task_list.append(TaskModel(
-            user_id=user.id,
-            title=fake.sentence(nb_words=6),
-            description=fake.text(),
-            is_completed=fake.boolean(),
+        task_list.append(
+            TaskModel(
+                user_id=user.id,
+                title=fake.sentence(nb_words=6),
+                description=fake.text(),
+                is_completed=fake.boolean(),
+            )
         )
-    )
     db.add_all(task_list)
     db.commit()
     print(f"added {count} Task For User with User_id: {user.id}")
@@ -38,7 +38,7 @@ def main():
     db = SessionLocal()
     try:
         user = seed_users(db)
-        seed_tasks(db,user)
+        seed_tasks(db, user)
     finally:
         db.close()
 

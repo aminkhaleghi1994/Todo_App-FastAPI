@@ -7,9 +7,9 @@ import time
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print('**********application startup**********')
+    print("**********application startup**********")
     yield
-    print('**********application shutdown**********')
+    print("**********application shutdown**********")
 
 
 app = FastAPI(
@@ -38,6 +38,7 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
+
 # origins = [
 #     "http://127.0.1:5500/",
 #     "http://localhost.tiangolo.com",
@@ -52,7 +53,6 @@ async def add_process_time_header(request: Request, call_next):
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
-
 
 
 if __name__ == "__main__":
