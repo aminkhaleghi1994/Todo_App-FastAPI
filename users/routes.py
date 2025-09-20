@@ -20,9 +20,9 @@ def generate_token(length = 32):
 async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
     user_object = db.query(UserModel).filter_by(username=request.username.lower()).first()
     if not user_object:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User does not exist")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User does not exist")
     if not user_object.verify_password(request.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password is invalid")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password is invalid")
     access_token = generate_access_token(user_object.id)
     refresh_token = generate_refresh_token(user_object.id)
     return JSONResponse(status_code=status.HTTP_200_OK,
@@ -39,7 +39,6 @@ async def user_register(request: UserRegisterSchema, db: Session = Depends(get_d
     user_object.set_password(request.password)
     db.add(user_object)
     db.commit()
-    db.refresh(user_object)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content="user object successfully registered")
 
 
