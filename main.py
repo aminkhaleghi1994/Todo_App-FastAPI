@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
 import uvicorn
+import time
 
 
 @asynccontextmanager
@@ -27,6 +28,31 @@ app = FastAPI(
 )
 
 app.include_router(tasks_routes, prefix="/api/v1")
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+# origins = [
+#     "http://127.0.1:5500/",
+#     "http://localhost.tiangolo.com",
+#     "http://localhost",
+#     "http://localhost:8080",
+# ]
+#
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
 
 
 if __name__ == "__main__":
