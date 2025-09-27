@@ -20,6 +20,12 @@ if config.config_file_name is not None:
 
 Base_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = Base_DIR /".env"
+
+if ENV_PATH.exists():
+    load_dotenv(ENV_PATH)
+else:
+    print(f"Warning: Env file '{ENV_PATH}' not found. Skipping load.")
+
 load_dotenv(ENV_PATH)
 
 DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
