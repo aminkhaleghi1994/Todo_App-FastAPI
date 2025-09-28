@@ -163,5 +163,5 @@ async def fetch_current_weather(latitude: float = 40.7128, longitude: float = -7
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": "failed to fetch current weather."})
 
 
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", port=8000, log_level="info", reload=True, reload_delay=500)
+if __name__ == "__main__":
+    uvicorn.run("main:app", port=8000, log_level="info", reload=True, reload_delay=500)
