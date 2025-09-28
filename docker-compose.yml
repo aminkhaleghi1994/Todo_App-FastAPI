@@ -34,4 +34,4 @@ services:
       - "8000:8000"
     command: bash -c 'fastapi dev --host 0.0.0.0 --port 8000'
     volumes:
-      - ./core:/app/core
+      - ./app:/app/core
