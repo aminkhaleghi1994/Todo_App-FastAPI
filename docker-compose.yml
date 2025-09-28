@@ -13,9 +13,9 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 10s
-      timeout: 10s
       retries: 5
       start_period: 30s
+      timeout: 10s
     ports:
       - "5432:5432"
 
@@ -34,4 +34,4 @@ services:
       - "8000:8000"
     command: bash -c 'fastapi dev --host 0.0.0.0 --port 8000'
     volumes:
-      - ./app:/app/core
+      - ./app:/usr/src/app
